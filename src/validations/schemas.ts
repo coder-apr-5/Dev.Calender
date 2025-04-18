@@ -24,3 +24,11 @@ export const UserLogin = z.object({
 })
 
 export type UserLogin = z.infer<typeof UserLogin>
+
+export const Tokens = z.object({
+    _id: z.custom<ObjectId>((val) => val instanceof ObjectId).optional(),
+    tokenId: z.string().uuid(),
+    expiresAt: z.date()
+})
+
+export type Tokens = z.infer<typeof Tokens>

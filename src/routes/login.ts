@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from "express";
 import { UserLogin } from "../validations/schemas";
 import { users } from "../services/db";
-import { generateAccessToken } from "../utils/tokens";
+import { generateAccessToken, generateRefreshToken } from "../utils/tokens";
 
 const app = Router()
 
@@ -26,7 +26,8 @@ app.post('/login', LoginValidate, async (req, res) => {
             return
         }
         const token = generateAccessToken(email, user.username)
-        res.status(200).send({status: 200, message: "User logged in", accessToken: token})
+        const rt = await generateRefreshToken(email, user.username)
+        res.status(200).send({status: 200, message: "User logged in", access_token: token, refresh_token: rt.token})
     } catch(_) {
         res.status(500).send({status: 500, message: "Unknown Error"})
     }
