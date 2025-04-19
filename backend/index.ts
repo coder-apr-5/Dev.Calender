@@ -33,5 +33,5 @@ const loadRoutes = async () => {
 
 
 loadRoutes().then(() => {
-    app.listen(process.env.PORT || 3000, () => console.log(process.env.NODE_ENV == 'production' ? "Server started" : `Server started at http://localhost:${process.env.PORT || 3000}`))
+    app.listen(process.env.PORT || 3000, () => console.log(process.env.NODE_ENV == 'production' ? "Server started" : `Server started at ${process.env.APP_URL}`))
 })

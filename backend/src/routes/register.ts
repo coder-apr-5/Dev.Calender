@@ -2,6 +2,7 @@ import { RequestHandler, Router } from "express";
 import { UserRegister } from "../validations/schemas";
 import { users } from "../services/db";
 import { generateAccessToken, generateRefreshToken } from "../utils/tokens";
+import { sendRegMail } from "../services/mail";
 
 const app = Router()
 
@@ -27,6 +28,7 @@ app.post('/register', RegisterValidate, async (req, res) => {
         const rt = await generateRefreshToken(email, username)
         const pwd = await Bun.password.hash(password)
         await users.insertOne({email, username, password:pwd})
+        await sendRegMail(email, username)
         res.status(201).send({status:201, message: "User Created", access_token: token, refresh_token: rt.token})
     } catch(_) {
         res.status(500).send({status:500, message: "Unknown Error"})
