@@ -31,6 +31,8 @@ app.post('/register', RegisterValidate, async (req, res) => {
         await sendRegMail(email, username)
         res.status(201).send({status:201, message: "User Created", access_token: token, refresh_token: rt.token})
     } catch(_) {
+        console.error(_);
+        
         res.status(500).send({status:500, message: "Unknown Error"})
     }
 })

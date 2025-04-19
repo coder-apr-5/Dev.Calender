@@ -3,9 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun run index.ts",
+    "start": "bun run index.ts --env-file=.env",
     "compile": "bun build --compile index.ts",
-    "dev": "bun run --hot index.ts"
+    "dev": "bun run --hot index.ts --env-file=.env"
   },
   "dependencies": {
     "cors": "^2.8.5",
