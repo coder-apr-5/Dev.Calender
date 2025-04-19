@@ -17,3 +17,5 @@ app.post('/api/logout', async (req, res) => {
         res.status(501).send({status: 501, message: "Unknown Error"})
     }
 })
+
+export default app
