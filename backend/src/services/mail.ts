@@ -14,7 +14,7 @@ const transport = createTransport({
     requireTLS: true
 })
 
-export const sendRegMail = async (email, username) => transport.sendMail({
+export const sendRegMail = async (email: string, username: string) => transport.sendMail({
   from: process.env.SMTP_USER,
   to: email,
   subject: "Registration Confirmation",
@@ -74,11 +74,12 @@ body {
 }, (err, info) => {
   if (err) {
       console.error(err);
+      return
   }
   console.log(info.response);
 })
 
-export const sendLoginMail = async (email, username) => transport.sendMail({
+export const sendLoginMail = async (email: string, username: string) => transport.sendMail({
   from: process.env.SMTP_USER,
   to: email,
   subject: "New login from your account",
@@ -138,6 +139,7 @@ body {
 }, (err, info) => {
   if (err) {
       console.error(err);
+      return
   }
   console.log(info.response);
 })
