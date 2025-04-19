@@ -38,6 +38,25 @@ paths:
                   refreshToken:
                     type: string
                     example: <token>
+        400:
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: User with same email already exists.
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
 
   /login:
     post:
@@ -68,7 +87,25 @@ paths:
                   refreshToken:
                     type: string
                     example: <token>
-
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: User not found or wrong password
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
   /api/events:
     get:
       summary: Get events for the authenticated user
@@ -89,6 +126,12 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Events'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
     post:
       summary: Create a new event
       security:
@@ -127,6 +170,12 @@ paths:
                   message:
                     type: string
                     example: Event created
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
     delete:
       summary: Delete an event
       security:
@@ -151,6 +200,12 @@ paths:
                   status:
                     type: integer
                     example: 204
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
   /api/logout:
     post:
       summary: Logout a user
@@ -177,6 +232,12 @@ paths:
                   message:
                     type: string
                     example: User logged out
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
   /refreshToken:
     post:
       summary: Refresh access token
@@ -200,6 +261,12 @@ paths:
                     example: 200
                   accessToken:
                     type: string
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnknownErr'
 
 components:
   schemas:
@@ -246,6 +313,15 @@ components:
         userId:
           type: string
           format: objectId
+    UnknownErr:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: Unknown error
 
   securitySchemes:
     bearerAuth:
