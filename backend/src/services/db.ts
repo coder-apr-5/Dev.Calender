@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { Tokens, User } from "../validations/schemas";
+import { Events, Tokens, User } from "../validations/schemas";
 
 const client = new MongoClient(process.env.MONGO_DB_URL!, {
     serverApi: {
@@ -11,6 +11,7 @@ const client = new MongoClient(process.env.MONGO_DB_URL!, {
 
 export const users = client.db('Primary').collection<User>('Users');
 export const tokens = client.db('Primary').collection<Tokens>('Tokens');
+export const events = client.db('Primary').collection<Events>('Events');
 
 export const connectDb = () => {
     client.db('Primary').command({ ping: 1 })
