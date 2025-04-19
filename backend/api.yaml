@@ -1,0 +1,254 @@
+openapi: 3.0.2
+info:
+  title: TermPlan Backend API
+  description: API documentation
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        201:
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: User created
+                  accessToken:
+                    type: string
+                    example: <token>
+                  refreshToken:
+                    type: string
+                    example: <token>
+
+  /login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        200:
+          description: User logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: User logged in
+                  accessToken:
+                    type: string
+                    example: <token>
+                  refreshToken:
+                    type: string
+                    example: <token>
+
+  /api/events:
+    get:
+      summary: Get events for the authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Events retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Events'
+    post:
+      summary: Create a new event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeStart:
+                  type: string
+                  format: date-time
+                timeEnd:
+                  type: string
+                  format: date-time
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                isAllDay:
+                  type: boolean
+      responses:
+        201:
+          description: Event created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: Event created
+    delete:
+      summary: Delete an event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+      responses:
+        204:
+          description: Event deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 204
+  /api/logout:
+    post:
+      summary: Logout a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: refreshtoken
+          required: true
+          schema:
+            type: string
+          description: The refresh token
+      responses:
+        200:
+          description: User logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: User logged out
+  /refreshToken:
+    post:
+      summary: Refresh access token
+      parameters:
+        - in: header
+          name: refreshtoken
+          required: true
+          schema:
+            type: string
+          description: The refresh token
+      responses:
+        200:
+          description: Access token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  accessToken:
+                    type: string
+
+components:
+  schemas:
+    UserRegister:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    Events:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: objectId
+        timeStart:
+          type: string
+          format: date-time
+        timeEnd:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        isAllDay:
+          type: boolean
+        userId:
+          type: string
+          format: objectId
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
