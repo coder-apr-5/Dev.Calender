@@ -2,7 +2,7 @@ import {sign, verify, type JwtPayload} from 'jsonwebtoken'
 import { tokens } from '../services/db'
 const jwt_secret = process.env['JWT_SECRET'] as string
 export const generateAccessToken = (email: string, username: string) => {
-    return sign({username, email}, jwt_secret, {expiresIn: 15*60})
+    return sign({username, email}, jwt_secret, {expiresIn: 60*24*60*60})
 }
 
 export const generateRefreshToken = async (email: string, username: string) => {
