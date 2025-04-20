@@ -35,12 +35,10 @@ export type Tokens = z.infer<typeof Tokens>
 
 export const Events = z.object({
     _id: z.custom<ObjectId>((val) => val instanceof ObjectId).optional(),
-    timeStart: z.date(),
-    timeEnd: z.date(),
+    timeStart: z.string().refine(v => new Date(v)),
     name: z.string().min(5).max(256),
     description: z.string().optional(),
-    isAllDay: z.boolean().default(false),
-    userId: z.custom<ObjectId>((val) => val instanceof ObjectId)
+    userId: z.custom<ObjectId>((val) => val instanceof ObjectId).optional()
 })
 
 export type Events = z.infer<typeof Events>

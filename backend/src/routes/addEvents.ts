@@ -16,12 +16,8 @@ const newEventValidate: RequestHandler = (req, res, next) => {
 
 app.post('/api/events', newEventValidate, async (req, res) => {
     try {
-        let {timeStart, timeEnd, name, description, isAllDay} = req.body
-        if(isAllDay) {
-            timeEnd = new Date(timeStart);
-            timeEnd.setHours(23, 59, 59, 999);
-        }
-        const ev = await events.insertOne({timeStart, timeEnd, name, description, isAllDay, userId: req.user?._id!})
+        let {timeStart, name, description, isAllDay} = req.body
+        const ev = await events.insertOne({timeStart, name, description, isAllDay, userId: req.user?._id!})
         res.status(201).send({status: 201, message: "Event created", eventId: ev.insertedId})
     } catch(_) {
         res.status(500).send({status: 500, message: "Unknown Error"})

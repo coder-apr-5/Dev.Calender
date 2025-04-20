@@ -178,16 +178,11 @@ paths:
                 timeStart:
                   type: string
                   format: date-time
-                timeEnd:
-                  type: string
-                  format: date-time
                 name:
                   type: string
                 description:
                   type: string
                   nullable: true
-                isAllDay:
-                  type: boolean
       responses:
         201:
           description: Event created

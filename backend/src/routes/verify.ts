@@ -10,3 +10,5 @@ app.get('/verify', (req, res) => {
         res.status(401).send({status: 401, message: "Invalid token"})
     }
 })
+
+export default app
