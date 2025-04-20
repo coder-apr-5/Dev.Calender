@@ -9,6 +9,38 @@ servers:
     description: Development server
 
 paths:
+  /verify:
+    get:
+      summary: Verify access token
+      security:
+         - bearerAuth: []
+      responses:
+        200:
+          description: Access token verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Verified
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: Unauthorized
   /register:
     post:
       summary: Register a new user

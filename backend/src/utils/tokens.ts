@@ -18,3 +18,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
     if(t.expiresAt < new Date()) throw Error("Refresh token expired");
     return sign({username, email}, jwt_secret, {expiresIn: 15*60})
 }
+
+export const verifyAccessToken = (accessToken: string) => {
+    return verify(accessToken, jwt_secret)
+}

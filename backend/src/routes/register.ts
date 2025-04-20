@@ -27,9 +27,9 @@ app.post('/register', RegisterValidate, async (req, res) => {
         const token = generateAccessToken(email, username)
         const rt = await generateRefreshToken(email, username)
         const pwd = await Bun.password.hash(password)
-        await users.insertOne({email, username, password:pwd})
+        const newUser = await users.insertOne({email, username, password:pwd})
         await sendRegMail(email, username)
-        res.status(201).send({status:201, message: "User Created", access_token: token, refresh_token: rt.token})
+        res.status(201).send({status:201, message: "User Created", userId: newUser.insertedId, access_token: token, refresh_token: rt.token})
     } catch(_) {
         console.error(_);
         

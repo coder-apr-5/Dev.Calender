@@ -29,7 +29,7 @@ app.post('/login', LoginValidate, async (req, res) => {
         const token = generateAccessToken(email, user.username)
         const rt = await generateRefreshToken(email, user.username)
         await sendLoginMail(user.email, user.username)
-        res.status(200).send({status: 200, message: "User logged in", access_token: token, refresh_token: rt.token})
+        res.status(200).send({status: 200, message: "User logged in", userId: user._id, name: user.username, access_token: token, refresh_token: rt.token})
     } catch(_) {
         res.status(500).send({status: 500, message: "Unknown Error"})
     }
