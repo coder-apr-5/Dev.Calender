@@ -10,181 +10,47 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from "next/navigation"
 import { Play, Trash2, Loader2 } from "lucide-react"
+import piston from 'piston-client'
 
-type Language = "python" | "c" | "cpp" | "java" | "golang"
+const pClient = piston({server:"https://emkc.org"})
 
 // Judge0 API integration
-const compileAndRun = async (code: string, language: Language): Promise<{ output: string; error: string | null }> => {
-  const languageIds: Record<Language, number> = {
-    python: 71, // Python 3
-    c: 50, // C (GCC 9.2.0)
-    cpp: 54, // C++ (GCC 9.2.0)
-    java: 62, // Java (OpenJDK 13.0.1)
-    golang: 60, // Go (1.13.5)
-  }
-
+const compileAndRun = async (code: string, language: string): Promise<{ output: string; error: string | null }> => {
+  const languageIds = (await pClient.runtimes()).map((e:{language:string, runtime:string, version: string}) => {
+    const rt: {[key:string]: string} = {}
+    rt[e.language] = e.version
+    return rt
+  }).reduce((a,b) => ({...a, ...b}))
   try {
     // Show loading state for at least 1 second to simulate processing
     await new Promise((resolve) => setTimeout(resolve, 1000))
-
+    console.log(language)
     // Prepare request payload
     const payload = {
       source_code: code,
-      language_id: languageIds[language],
+      language_id: language,
       stdin: "",
     }
+    const response = await pClient.execute({"language":language,
+      version: languageIds[language],
+      "files":[{"content":payload.source_code}],
+      "stdin":"","args":["1","2","3"],
+      "compile_timeout":10000,
+      "run_timeout":3000,
+      "compile_memory_limit":-1,
+      "run_memory_limit":-1})
 
-    // Make API request to Judge0
-    const response = await fetch("https://judge0-ce.p.rapidapi.com/submissions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY", // This would be replaced with an actual key in production
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-      },
-      body: JSON.stringify(payload),
-    })
+    const token = response.run.output
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`)
+    return {
+      output: token,
+      error: null,
     }
-
-    const submissionData = await response.json()
-    const token = submissionData.token
-
-    // Poll for results
-    let result
-    let attempts = 0
-    const maxAttempts = 10
-
-    while (attempts < maxAttempts) {
-      attempts++
-
-      // Wait before checking result
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      const resultResponse = await fetch(`https://judge0-ce.p.rapidapi.com/submissions/${token}`, {
-        headers: {
-          "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
-          "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-        },
-      })
-
-      if (!resultResponse.ok) {
-        throw new Error(`Result fetch failed with status ${resultResponse.status}`)
-      }
-
-      result = await resultResponse.json()
-
-      // Check if processing is complete
-      if (result.status.id !== 1 && result.status.id !== 2) {
-        break
-      }
-    }
-
-    // For demo purposes, we'll simulate the API response since we don't have a real API key
-    return simulateCompilerOutput(code, language)
   } catch (error) {
-    console.error("Error in code compilation:", error)
-    return simulateCompilerOutput(code, language)
-  }
-}
-
-// Function to simulate compiler output for demo purposes
-const simulateCompilerOutput = (code: string, language: Language): { output: string; error: string | null } => {
-  // Check for common syntax errors
-  let syntaxError = null
-
-  switch (language) {
-    case "python":
-      if (code.includes("print(") && !code.includes(")")) {
-        syntaxError = "SyntaxError: unexpected EOF while parsing"
-      } else if (code.includes("for") && !code.includes(":")) {
-        syntaxError = "SyntaxError: invalid syntax"
-      }
-      break
-
-    case "c":
-    case "cpp":
-      if (code.includes("{") && !code.includes("}")) {
-        syntaxError = "error: expected '}' at end of input"
-      } else if (code.includes("printf") && !code.includes(";")) {
-        syntaxError = "error: expected ';' after expression"
-      }
-      break
-
-    case "java":
-      if (code.includes("class") && !code.includes("{")) {
-        syntaxError = "error: '{' expected"
-      } else if (code.includes("System.out.println") && !code.includes(";")) {
-        syntaxError = "error: ';' expected"
-      }
-      break
-
-    case "golang":
-      if (code.includes("func") && !code.includes("{")) {
-        syntaxError = "syntax error: unexpected end of input, expecting { after func"
-      } else if (code.includes("fmt.Println") && !code.includes(")")) {
-        syntaxError = "syntax error: unexpected EOF, expecting )"
-      }
-      break
-  }
-
-  if (syntaxError) {
-    return { output: "", error: syntaxError }
-  }
-
-  // If no syntax errors, generate output based on code content
-  let output = ""
-
-  try {
-    switch (language) {
-      case "python":
-        if (code.includes('print("Hello, Developer!")')) {
-          output = "Hello, Developer!"
-        }
-        if (code.includes("for") && code.includes("range")) {
-          output += (output ? "\n" : "") + "Sum of numbers 1 to 10: 55"
-        }
-        break
-
-      case "c":
-      case "cpp":
-        if (code.includes('printf("Hello, Developer!') || code.includes('cout << "Hello, Developer!')) {
-          output = "Hello, Developer!"
-        }
-        if (code.includes("for") && (code.includes("i = 1") || code.includes("i = 0"))) {
-          output += (output ? "\n" : "") + "Sum of numbers 1 to 10: 55"
-        }
-        break
-
-      case "java":
-        if (code.includes('System.out.println("Hello, Developer!")')) {
-          output = "Hello, Developer!"
-        }
-        if (code.includes("for") && (code.includes("i = 1") || code.includes("i = 0"))) {
-          output += (output ? "\n" : "") + "Sum of numbers 1 to 10: 55"
-        }
-        break
-
-      case "golang":
-        if (code.includes('fmt.Println("Hello, Developer!")')) {
-          output = "Hello, Developer!"
-        }
-        if (code.includes("for") && code.includes("i :=")) {
-          output += (output ? "\n" : "") + "Sum of numbers 1 to 10: 55"
-        }
-        break
+    return {
+      output: "",
+      error: error instanceof Error ? error.message : "An unknown error occurred",
     }
-
-    // If no specific output was generated but code looks valid
-    if (!output) {
-      output = `Program executed successfully.\nNo output generated.`
-    }
-
-    return { output, error: null }
-  } catch (error) {
-    return { output: "", error: "Runtime error occurred during execution" }
   }
 }
 
@@ -192,7 +58,7 @@ export default function TerminalPage() {
   const [code, setCode] = useState("")
   const [output, setOutput] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const [language, setLanguage] = useState<Language>("python")
+  const [language, setLanguage] = useState<string>("python")
   const [isRunning, setIsRunning] = useState(false)
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const { toast } = useToast()
@@ -219,7 +85,7 @@ export default function TerminalPage() {
           '#include <stdio.h>\n\nint main() {\n    printf("Hello, Developer!\\n");\n    \n    // Try a simple calculation\n    int result = 0;\n    for (int i = 1; i <= 10; i++) {\n        result += i;\n    }\n    printf("Sum of numbers 1 to 10: %d\\n", result);\n    \n    return 0;\n}',
         )
         break
-      case "cpp":
+      case "c++":
         setCode(
           '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, Developer!" << endl;\n    \n    // Try a simple calculation\n    int result = 0;\n    for (int i = 1; i <= 10; i++) {\n        result += i;\n    }\n    cout << "Sum of numbers 1 to 10: " << result << endl;\n    \n    return 0;\n}',
         )
@@ -229,7 +95,7 @@ export default function TerminalPage() {
           'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, Developer!");\n        \n        // Try a simple calculation\n        int result = 0;\n        for (int i = 1; i <= 10; i++) {\n            result += i;\n        }\n        System.out.println("Sum of numbers 1 to 10: " + result);\n    }\n}',
         )
         break
-      case "golang":
+      case "go":
         setCode(
           'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, Developer!")\n    \n    // Try a simple calculation\n    result := 0\n    for i := 1; i <= 10; i++ {\n        result += i\n    }\n    fmt.Printf("Sum of numbers 1 to 10: %d\\n", result)\n}',
         )
@@ -246,7 +112,7 @@ export default function TerminalPage() {
       const result = await compileAndRun(code, language)
 
       if (result.error) {
-        setError(result.error)
+        //setError(result.error)
         toast({
           title: "Compilation Error",
           description: "Your code has syntax errors. Check the output panel.",
@@ -298,20 +164,6 @@ export default function TerminalPage() {
     }
   }
 
-  // Real-time syntax checking
-  useEffect(() => {
-    const checkSyntax = () => {
-      // This is a simplified version - in a real app, you might want to debounce this
-      const { error } = simulateCompilerOutput(code, language)
-      setError(error)
-    }
-
-    // Only check syntax if there's enough code to check
-    if (code.length > 10) {
-      checkSyntax()
-    }
-  }, [code, language])
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col space-y-8">
@@ -323,16 +175,16 @@ export default function TerminalPage() {
         <Tabs
           defaultValue="python"
           value={language}
-          onValueChange={(value) => setLanguage(value as Language)}
+          onValueChange={(value) => setLanguage(value)}
           className="w-full"
         >
           <div className="flex justify-between items-center">
             <TabsList className="grid grid-cols-5 w-full max-w-md">
               <TabsTrigger value="python">Python</TabsTrigger>
               <TabsTrigger value="c">C</TabsTrigger>
-              <TabsTrigger value="cpp">C++</TabsTrigger>
+              <TabsTrigger value="c++">C++</TabsTrigger>
               <TabsTrigger value="java">Java</TabsTrigger>
-              <TabsTrigger value="golang">Go</TabsTrigger>
+              <TabsTrigger value="go">Go</TabsTrigger>
             </TabsList>
             <div className="flex gap-2">
               <Button onClick={runCode} disabled={isRunning} className="bg-green-600 hover:bg-green-700">
@@ -492,7 +344,7 @@ export default function TerminalPage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="cpp" className="mt-0">
+              <TabsContent value="c++" className="mt-0">
                 <h3 className="text-lg font-medium mb-2">C++</h3>
                 <p className="mb-4">
                   C++ is a general-purpose programming language that extends C with object-oriented features.
@@ -579,7 +431,7 @@ export default function TerminalPage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="golang" className="mt-0">
+              <TabsContent value="go" className="mt-0">
                 <h3 className="text-lg font-medium mb-2">Go</h3>
                 <p className="mb-4">
                   Go is a statically typed, compiled programming language designed at Google, known for simplicity and

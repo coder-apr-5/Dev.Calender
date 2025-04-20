@@ -417,20 +417,6 @@ export default function CalendarPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tagged-persons">Tagged Persons</Label>
-                    <Input
-                      id="tagged-persons"
-                      placeholder="Enter names separated by commas"
-                      value={newEvent.taggedPersons}
-                      onChange={(e) =>
-                        setNewEvent({
-                          ...newEvent,
-                          taggedPersons: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <Button className="w-full" onClick={addEvent}>
                     Add Event
                   </Button>
@@ -482,7 +468,7 @@ function CalendarGrid({
       (event) =>
         event.date.getDate() === date.getDate() &&
         event.date.getMonth() === date.getMonth() &&
-        event.date.getFullYear() === date.getFullYear(),
+        event.date.getFullYear() === date.getFullYear()
     )
   }
 
@@ -540,13 +526,15 @@ function CalendarGrid({
 
       {/* Calendar grid */}
       {days.map((date, index) => {
+        if (!date) return null
+
         const row = Math.floor(index / 7)
         const col = index % 7
         const x = (col - 3) * 1.2
         const y = -row * 1.2
         const dateEvents = getEventsByDate(date)
 
-        return date ? (
+        return (
           <group key={index} position={[x, y, 0]}>
             {/* Day cell */}
             <mesh
@@ -584,6 +572,8 @@ function CalendarGrid({
 
             {/* Event indicators */}
             {dateEvents.slice(0, 3).map((event, i) => {
+              if (!event) return null
+
               const eventColor = getEventColor(event.priority)
               return (
                 <mesh key={i} position={[0, -0.1 - i * 0.15, 0]}>
@@ -602,8 +592,6 @@ function CalendarGrid({
               </Text>
             )}
           </group>
-        ) : (
-          <group key={index} position={[x, y, 0]} />
         )
       })}
     </group>

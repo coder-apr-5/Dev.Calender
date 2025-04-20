@@ -139,19 +139,22 @@ export default function Home() {
           <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 py-12 md:grid-cols-3">
             {[
               {
-                name: "Alex Johnson",
+                name: "Apurba Roy",
                 role: "Frontend Developer",
-                bio: "Specializes in creating intuitive user interfaces with React and Three.js.",
+                bio: "Specializes in creating intuitive user interfaces with React and Next.js.",
+                img: '/apurba.jpg'
               },
               {
-                name: "Samantha Chen",
+                name: "Soumalya Ghosh",
                 role: "Backend Developer",
                 bio: "Expert in building robust APIs and database architectures.",
+                img: '/soumalya.jpg'
               },
               {
-                name: "Michael Rodriguez",
-                role: "DevOps Engineer",
-                bio: "Ensures smooth deployment and optimal performance across all platforms.",
+                name: "Krishanu Roy",
+                role: "Ideation Lead",
+                bio: "A chill guy who brings innovative ideas to life.",
+                img: '/krishanu.jpg'
               },
             ].map((developer, index) => (
               <Card key={index}>
@@ -159,7 +162,7 @@ export default function Home() {
                   <div className="flex justify-center">
                     <div className="relative h-24 w-24 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
                       <Image
-                        src={`/placeholder.svg?height=96&width=96&text=${developer.name.charAt(0)}`}
+                        src={developer.img}
                         alt={developer.name}
                         fill
                         className="object-cover"

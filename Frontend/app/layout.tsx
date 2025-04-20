@@ -7,7 +7,6 @@ import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/hooks/use-auth"
-import { EthereumProvider } from "@/components/ethereum-provider"
 import { NotificationProvider } from "@/components/notification-provider"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -28,8 +27,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            <EthereumProvider>
-              <NotificationProvider>
+          <NotificationProvider>
                 <div className="flex min-h-screen flex-col">
                   <Navbar />
                   <main className="flex-1">{children}</main>
@@ -37,7 +35,6 @@ export default function RootLayout({
                 </div>
                 <Toaster />
               </NotificationProvider>
-            </EthereumProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

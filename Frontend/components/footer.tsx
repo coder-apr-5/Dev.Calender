@@ -40,7 +40,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          <div>
+          {/* <div>
             <h3 className="mb-4 text-sm font-semibold">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -59,22 +59,22 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
           <div>
             <h3 className="mb-4 text-sm font-semibold">Connect</h3>
             <div className="flex space-x-4">
-              <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link target="_blank" href="https://github.com/coder-apr-5/Dev.Calender" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Github className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
+                <span className="sr-only">Github</span>
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+              {/* <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Twitter className="h-5 w-5" />
                 <span className="sr-only">Twitter</span>
               </Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Linkedin className="h-5 w-5" />
                 <span className="sr-only">LinkedIn</span>
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

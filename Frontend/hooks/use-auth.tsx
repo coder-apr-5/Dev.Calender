@@ -1,10 +1,11 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 // Create a proper implementation instead of re-exporting
 import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { loginUser, logout, registerUser } from "./useApi"
 
 type User = {
   id: string
@@ -16,13 +17,12 @@ type User = {
 type AuthContextType = {
   user: User | null
   signIn: (email: string, password: string) => Promise<void>
-  signInWithGoogle: () => Promise<void>
   signUp: (name: string, email: string, password: string) => Promise<void>
   signOut: () => void
   isLoading: boolean
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext: React.Context<AuthContextType | undefined> = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -42,38 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
     try {
       // Simulate authentication
-      const mockUser: User = {
-        id: "user-1",
-        name: email.split("@")[0],
-        email,
-        image: null,
-      }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      const {userId, access_token, name} = await loginUser(email, password)
+      setUser({email, id: userId, name, image: null})
+      localStorage.setItem("user", JSON.stringify({email, password}))
+      
       router.push("/calendar")
     } catch (error) {
       console.error("Failed to sign in:", error)
-      throw error
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const signInWithGoogle = async () => {
-    setIsLoading(true)
-    try {
-      // Simulate Google authentication
-      const mockUser: User = {
-        id: "google-user-1",
-        name: "Google User",
-        email: "user@gmail.com",
-        image: "/placeholder.svg?height=40&width=40&text=GU",
-      }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
-      router.push("/calendar")
-    } catch (error) {
-      console.error("Failed to sign in with Google:", error)
       throw error
     } finally {
       setIsLoading(false)
@@ -84,14 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
     try {
       // Simulate registration
-      const mockUser: User = {
-        id: "user-" + Date.now(),
-        name,
-        email,
-        image: null,
-      }
-      setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      const user = await registerUser(name, email, password)
+      setUser(user)
+      localStorage.setItem("user", JSON.stringify(user))
       router.push("/calendar")
     } catch (error) {
       console.error("Failed to sign up:", error)
@@ -101,18 +71,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signOut = () => {
+  const signOut = async () => {
+    await logout()
     setUser(null)
-    localStorage.removeItem("user")
+    localStorage.clear()
+    sessionStorage.clear()
     router.push("/")
   }
-
   return (
     <AuthContext.Provider
       value={{
         user,
         signIn,
-        signInWithGoogle,
         signUp,
         signOut,
         isLoading,

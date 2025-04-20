@@ -83,9 +83,9 @@ export default function Navbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                {/* <DropdownMenuItem><Link href='/profile'>Profile</Link></DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator /> */}
                 <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
