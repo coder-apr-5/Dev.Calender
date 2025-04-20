@@ -13,9 +13,9 @@ type Event = {
   id: string
   title: string
   date: Date
-  time: string
+  time?: string
   priority: "casual" | "important" | "urgent"
-  taggedPersons: string[]
+  taggedPersons: string[] | []
 }
 
 export default function EventsPage() {
@@ -25,6 +25,32 @@ export default function EventsPage() {
   const [filter, setFilter] = useState<"all" | "today" | "upcoming" | "past">("all")
   const { user } = useAuth()
   const router = useRouter()
+  useEffect(() => {
+    const initialEvents = [
+      {
+        title: "DummyEvent1",
+        date: new Date(),
+        id: 'byv7578b5deqw7tvc9eqwt',
+        priority: 'casual' as const,
+        taggedPersons: []
+      },
+      {
+        title: "DummyEvent2",
+        date: new Date(new Date().setDate(new Date().getDate() - 10)),
+        id: 'binfiuye8wrfwgfb87ectg',
+        priority: "important" as const,
+        taggedPersons: []
+      },
+      {
+        title: "DummyEvent3",
+        date: new Date(new Date().setDate(new Date().getDate() + 10)),
+        id: 'binfiuye8wrfwgfb87ectgguytvuyt',
+        priority: "urgent" as const,
+        taggedPersons: []
+      }
+    ];
+    setEvents(initialEvents);
+  }, []);
 
   // Redirect if not logged in
   useEffect(() => {

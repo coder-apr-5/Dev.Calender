@@ -31,7 +31,7 @@ export const logout = async () => {
 export const setRefreshToken = (token: string) => localStorage.setItem('refresh_token', token)
 export const useRefreshToken = () => localStorage.getItem('refresh_token')
 export const setAccessToken = (token: string) => sessionStorage.setItem('access_token', token)
-export const useAccessToken = async () => {
+export const useAccessToken = async (sessionStorage: Storage) => {
     const token = sessionStorage.getItem('access_token')
     if (token) {
         const res = await fetch(`${API_URL}/verify`, {
